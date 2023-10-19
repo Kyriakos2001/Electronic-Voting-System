@@ -1,0 +1,101 @@
+/* 
+    Created on : Jul 7, 2023, 11:24:06 PM
+    Author     : uthar
+*/
+.navd-icon {
+    padding-right: 1rem;
+}
+
+.ms-7 {
+    margin-left: -7rem;
+}
+
+.white-icon {
+    color: white;
+}
+.dropdown-toggle.white-icon::after {
+    color:white;
+}
+.nav-icon{
+    font-size:18px;
+}
+
+.nav-dropdown{
+    display: flex;
+}
+
+.flag{
+    padding-top: .2rem;
+}
+
+.flag-dropdown{
+    float: left;
+}
+.container{
+    padding-top: 10%;
+}
+
+.required:after {
+    content:" *";
+    color: red;
+}
+
+.empty-voters-list-data ,
+.invalid-voters-list-emailIds,
+.empty-poll-data,
+.empty-question-data,
+.empty-question-option-data,
+.empty-edit-question-data{
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: .875em;
+    color: var(--bs-form-invalid-color);
+}
+
+.voter-list-actions {
+    margin-left: 55%;
+    padding-top: 5px;
+}
+.btn-add-voterlist {
+    margin-right: 10px;
+}
+
+.result-btn{
+    font-size: .875rem;
+}
+
+.max-w-200px{
+    max-width:200px !important;
+}
+
+@media (max-width: 768px) {
+    .d-xs-options-none{
+        display: none !important;
+    }
+    
+    .d-xs-options-block{
+        display: block !important;
+    }
+    
+    .pt-xs-0{
+        padding-top: 0 !important;
+    }
+    
+    .width-lg-reduce{
+        width:100%;
+    }
+   
+}
+@media (min-width: 768px) {
+    .sidebar-sticky.collapse:not(.show) {
+    display: block !important;
+    }
+    
+    .width-md-reduce{
+        width: 30%;
+    }
+   
+}
+
+}

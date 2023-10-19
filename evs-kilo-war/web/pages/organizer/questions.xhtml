@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">   
+    <f:metadata>       
+        <f:viewParam name="pollId" value="#{questionManagementBean.selectedPollId}" />
+    </f:metadata>
+    
+    <ui:define name="exception">
+        <input type="hidden" id="toastMessage"  value='#{questionManagementBean.getPageException()}'></input>
+    </ui:define>
+   
+    <ui:define name="header">       
+            <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="container-fluid">
+            <div class="row">
+                <ui:include src="/pages/organizer/menu.xhtml" />                  
+                <main class="col-md-9 col-sm-12 ms-md-auto col-lg-10 px-md-4">  
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">#{msg.titleQuestions}</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button 
+                                type="button" 
+                                class="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-1" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#create_question_modal">#{msg.titleCreateQuestion}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!--begin::Create Modal dialog-->  
+                    <div layout="block" class="modal fade" id="create_question_modal" aria-modal="true" role="dialog">
+                        <h:form id="create_question_form" styleClass="needs-validation" onsubmit="return validateCreateQuestionForm()">                             
+                            <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                    <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                        <button 
+                                            type="button" 
+                                            title="#{msg.close}" 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            data-bs-dismiss="modal"
+                                            ><i class="fas fa-times"></i>
+                                        </button>                                  
+                                    </h:panelGroup>
+                                    <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                        <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                            <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                <h2>#{msg.titleCreateQuestion}</h2>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.labelTitle}" 
+                                                    for="target_title"/> 
+                                                <h:inputText 
+                                                    styleClass="form-control form-control-solid" 
+                                                    id="target_title" 
+                                                    value="#{questionManagementBean.createQuestionDto.title}" 
+                                                    required="true"
+                                                    a:placeholder="#{msg.textCreateQuestionTitlePlaceholder}">
+                                                </h:inputText>
+                                                <div class="empty-question-data">
+                                                    #{msg.textNewQuestionTitleEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.maxAnswers}" 
+                                                    for="target_limit"/> 
+                                                <h:inputText 
+                                                    styleClass="form-control form-control-solid numbers-only" 
+                                                    id="target_limit" 
+                                                    value="#{questionManagementBean.createQuestionDto.maxAnswers}" 
+                                                    required="true"
+                                                    onkeypress="if(event.which &lt; 48 || event.which &gt; 57) return false;"
+                                                    a:placeholder="#{msg.textCreateQuestionMaxAnswersPlaceholder}">
+                                                </h:inputText>
+                                                <div class="empty-question-data">
+                                                    #{msg.textNewQuestionMaxAnswersEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.minAnswers}" 
+                                                    for="target_min_limit"/> 
+                                                <h:inputText 
+                                                    styleClass="form-control form-control-solid numbers-only" 
+                                                    id="target_min_limit" 
+                                                    value="#{questionManagementBean.createQuestionDto.minAnswers}" 
+                                                    required="true"
+                                                    onkeypress="if(event.which &lt; 48 || event.which &gt; 57) return false;"
+                                                    a:placeholder="#{msg.textCreateQuestionMinAnswersPlaceholder}">
+                                                </h:inputText>
+                                                <div class="empty-question-data">
+                                                    #{msg.textNewQuestionMinAnswersEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.labelOptionType}" 
+                                                    for="target_options"/> 
+                                                <h:selectOneListbox 
+                                                    id="optionType" 
+                                                    styleClass="form-control form-control-solid" 
+                                                    value="#{questionManagementBean.createQuestionDto.type}">
+                                                        <f:selectItems 
+                                                            value="#{questionManagementBean.optionType}" 
+                                                            var="mode" 
+                                                            itemValue="#{mode}" 
+                                                            itemLabel="#{mode}"/>
+                                                </h:selectOneListbox>
+                                                <div class="empty-question-data">
+                                                    #{msg.textNewQuestionTypeEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="text-center">
+                                                <h:commandButton 
+                                                    styleClass="btn btn-light me-3" 
+                                                    value="#{msg.cancel}" 
+                                                    type="button"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                </h:commandButton>
+                                                <h:commandButton 
+                                                    styleClass="btn btn-primary" 
+                                                    value="#{msg.submit}"
+                                                    id="create_question_modal_submit" 
+                                                    action="#{questionManagementBean.createQuestion()}">
+                                                </h:commandButton>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </h:panelGroup>      
+                        </h:form>
+                    </div>
+                    <!--end::Modal dialog-->
+                    
+                    <!-- Poll details -->
+                    <div class="card shadow hover-actions-trigger">
+                        <div class="card-body">
+                            <h:panelGroup rendered="#{questionManagementBean.pollQuestions.size()==0}">
+                                <div class="card-body">
+                                    <div class="alert alert-warning opacity-75" role="alert">
+                                        <i class="me-2 fa-solid fa-exclamation-circle"></i>
+                                        #{msg.noQuestionInPoll}
+                                    </div>                                        
+                                </div>                                        
+                            </h:panelGroup>
+                            <div class="d-flex align-items-center px-1">
+                                <h4 class="mb-2 line-clamp-1 lh-sm flex-1 me-5">#{questionManagementBean.getSelectedPoll().title}</h4>                                
+                            </div>
+                            <div class="d-md-flex flex-row mt-3 px-1">
+                                <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelDescription}</span>
+                                <span> #{questionManagementBean.getSelectedPoll().description}</span>
+                            </div>
+                            <div class="d-md-flex flex-row mt-3 px-1">
+                                <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.titleQuestions}</span>
+                                <span> #{questionManagementBean.pollQuestions.size()}</span>
+                            </div>
+                            <div class="d-md-flex flex-row mt-3 px-1">
+                                <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelPollStatus}</span>
+                                <h:panelGroup layout="block" rendered="#{questionManagementBean.getSelectedPoll().state=='PREPARED'}" >
+                                    <span class="badge bg-info"> #{msg.votingStatePrepared}</span>
+                                </h:panelGroup>
+                                <h:panelGroup layout="block" rendered="#{questionManagementBean.getSelectedPoll().state=='STARTED'}" >
+                                    <span class="badge bg-info"> #{msg.votingStateStarted}</span>
+                                </h:panelGroup>
+                                <h:panelGroup layout="block" rendered="#{questionManagementBean.getSelectedPoll().state=='VOTING'}" >
+                                    <span class="badge bg-info"> #{msg.votingStateVoting}</span>
+                                </h:panelGroup>
+                                <h:panelGroup layout="block" rendered="#{questionManagementBean.getSelectedPoll().state=='FINISHED'}" >
+                                    <span class="badge bg-info"> #{msg.votingStateFinished}</span>
+                                </h:panelGroup>
+                            </div>                            
+                            <div class="d-md-flex flex-row mt-4 px-1">
+                                <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelStartDate}</span>
+                                <div 
+                                    class="input-group date width-md-reduce"
+                                    id="StartDate_#{questionManagementBean.getSelectedPoll().pollId}" 
+                                    data-target-input="nearest" >
+                                    <input 
+                                        id="StartDate" 
+                                        type="text" 
+                                        name="StartDate" 
+                                        value="#{questionManagementBean.getSelectedPoll().startDateString}" 
+                                        class="form-control datetimepicker-input" 
+                                        readonly="readonly" >
+                                        <span 
+                                            class="input-group-text" 
+                                            data-target="#StartDate_#{questionManagementBean.getSelectedPoll().pollId}"><i class="fa fa-calendar-alt"></i>
+                                        </span>
+                                    </input>
+                                </div>
+                            </div>
+                            <div class="d-md-flex flex-row mt-4 px-1">
+                                <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelEndDate} </span>
+                                <div 
+                                    class="input-group date width-md-reduce" 
+                                    id="EndDate_#{questionManagementBean.getSelectedPoll().pollId}" 
+                                    data-target-input="nearest">
+                                    <input 
+                                        id="EndDate" 
+                                        type="text" 
+                                        name="EndDate" 
+                                        value="#{questionManagementBean.getSelectedPoll().endDateString}"
+                                        class="form-control datetimepicker-input" 
+                                        readonly="readonly" >
+                                        <span 
+                                            class="input-group-text" 
+                                            data-target="#EndDate_#{questionManagementBean.getSelectedPoll().pollId}"><i class="fa fa-calendar-alt"></i>
+                                        </span>
+                                    </input>
+                                </div>
+                            </div>
+                            <br></br>
+                            <div class="accordion" id="accordionExample">
+                                <ui:repeat value="#{questionManagementBean.pollQuestions}" var="question" varStatus="varStatus">
+                                    <div class="accordion-item shadow mb-2" id="item_card_#{question.id}">
+                                        <h2 class="accordion-header">
+                                            <button 
+                                                class="accordion-button collapsed" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#collapse_#{question.id}" 
+                                                aria-controls="collapse_#{question.id}">#{msg.labelQuestion} ##{varStatus.index + 1}
+                                            </button>
+                                        </h2>
+                                        <div 
+                                            id="collapse_#{question.id}" 
+                                            class="accordion-collapse collapse" 
+                                            aria-labelledby="#{question.id}" 
+                                            data-bs-parent="#item_card_#{question.id}">
+                                                <div class="accordion-body d-grid">
+                                                    <h:form>
+                                                        <div class="row g-5">
+                                                            <div class="col-12 col-md-10">
+                                                                <h:panelGroup rendered="#{question.itemsList.size()==0}">
+                                                                    <div>
+                                                                        <div class="alert alert-warning opacity-75" role="alert">
+                                                                            <i class="me-2 fa-solid fa-exclamation-circle"></i>
+                                                                            #{msg.noOptionInQuestion}
+                                                                        </div>
+                                                                    </div>                                        
+                                                                </h:panelGroup>
+                                                                <h:panelGroup rendered="#{question.itemsList.size() lt question.maxAnswers}">
+                                                                    <div>
+                                                                        <div class="alert alert-warning opacity-75" role="alert">
+                                                                            <i class="me-2 fa-solid fa-exclamation-circle"></i>
+                                                                             #{msg.maxOption}
+                                                                        </div>
+                                                                    </div>                                        
+                                                                </h:panelGroup>
+                                                                <div class="d-md-flex flex-row mt-3 px-1">
+                                                                    <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelTitle}</span>
+                                                                    <span> #{question.title}</span>
+                                                                </div>
+                                                                <div class="d-md-flex flex-row mt-3 px-1">
+                                                                    <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.minAnswers}</span>
+                                                                    <span> #{question.minAnswers}</span>
+                                                                </div>
+                                                                <div class="d-md-flex flex-row mt-3 px-1">
+                                                                    <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.maxAnswers}</span>
+                                                                    <span> #{question.maxAnswers}</span>
+                                                                </div>
+                                                                <div class="d-md-flex flex-row mt-3 px-1">
+                                                                    <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary">#{msg.labelOptionType}</span>
+                                                                    <span> #{question.type}</span>
+                                                                </div>
+                                                                <div class="d-md-flex flex-row mt-3 px-1  border-bottom">
+                                                                    <span class="col-lg-2 col-md-2 col-sm-2 fw-semi-bold text-body-secondary mb-4">#{msg.labelOption}</span>                                                        
+                                                                </div>
+                                                                <div class="table-responsive small p-1">
+                                                                    <h:dataTable 
+                                                                        value="#{question.itemsList}" 
+                                                                        var="item" 
+                                                                        class="table table-hover table-striped table-borderless table-light">
+                                                                            <h:column>
+                                                                                <f:facet name="header">#{msg.labelName}</f:facet>
+                                                                                #{item.name}
+                                                                            </h:column>
+                                                                            <h:column>
+                                                                                <f:facet name="header">#{msg.labelDescription}</f:facet>
+                                                                                #{item.description}
+                                                                            </h:column>
+                                                                            <h:column>
+                                                                                <f:facet name="header">#{msg.labelActions}</f:facet>
+                                                                                <h:commandButton 
+                                                                                    title="#{msg.delete}" 
+                                                                                    value="#{msg.delete}" 
+                                                                                    class="btn btn-light btn-outline-secondary btn-sm borderless" 
+                                                                                    action='#{questionManagementBean.deleteItem(item.id)}'>
+                                                                                </h:commandButton>
+                                                                            </h:column>
+                                                                    </h:dataTable>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-md-2">
+                                                                <h5 class="text-800 mb-3">#{msg.labelActions}</h5>
+                                                                <div class="mb-6">
+                                                                    <h:panelGroup rendered="#{question.canAddAnswers}">
+                                                                        <button 
+                                                                            type="button" 
+                                                                            class="btn btn-sm btn-light rounded-3 mb-2 d-flex align-items-center w-100 text-success"
+                                                                            data-bs-toggle="modal" 
+                                                                            data-bs-target="#addOptionModal_#{question.id}" 
+                                                                            title="Add an option">
+                                                                            <span class="me-2 fa-solid fa-plus"></span>#{msg.labelAddOption}
+                                                                        </button>
+                                                                    </h:panelGroup>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="btn btn-sm btn-light rounded-3 mb-2 d-flex align-items-center w-100 text-primary" 
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target="#editQuestionModal_#{question.id}" 
+                                                                        title="#{msg.edit}">
+                                                                        <span class="me-2 fa-solid fa-edit"></span>#{msg.edit}
+                                                                    </button>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        class="btn btn-sm btn-light rounded-3 mb-2 d-flex align-items-center w-100 text-danger"
+                                                                        data-bs-toggle="modal" 
+                                                                        data-bs-target="#deleteItemModal_#{question.id}" 
+                                                                        title="#{msg.delete}">
+                                                                        <span class="me-2 fa-solid fa-trash"></span>#{msg.delete}
+                                                                    </button>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>    
+                                                    </h:form>
+                                                <br></br> 
+                                            </div>
+                                        </div>
+                                        <h:form id="addOptionModal_#{question.id}" styleClass="needs-validation" onsubmit="return validateOption(#{question.id})">
+                                            <div layout="block" class="modal fade" id="addOptionModal_#{question.id}">
+                                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                                <f:passThroughAttribute name="role" value="dialog" />                   
+                                                <f:passThroughAttribute name="aria-hidden" value="true" /> 
+                                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                                    <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                                            <button 
+                                                                type="button" 
+                                                                title="#{msg.close}" 
+                                                                class="btn btn-sm btn-outline-secondary" 
+                                                                data-bs-dismiss="modal"
+                                                                ><i class="fas fa-times"></i>
+                                                            </button>                                  
+                                                        </h:panelGroup>
+                                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                                    <h2>#{msg.labelAddOption}</h2>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                                    <h:outputLabel 
+                                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                                        value="#{msg.labelName}"/>
+                                                                    <h:inputText 
+                                                                        styleClass="form-control form-control-solid" 
+                                                                        value="#{question.createItemInfo.name}" 
+                                                                        required="true"
+                                                                        a:placeholder="#{msg.textNewQuestionOptionTitlePlaceholder}"/>
+                                                                    <div class="empty-question-option-data">
+                                                                        #{msg.textNewQuestionOptionTitleEmpty}
+                                                                    </div>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3">                                           
+                                                                    <h:outputLabel 
+                                                                        styleClass="mb-2" 
+                                                                        value="#{msg.labelDescription}"/>
+                                                                    <h:inputTextarea 
+                                                                        styleClass="form-control form-control-solid"  
+                                                                        rows="3" 
+                                                                        value="#{question.createItemInfo.description}" 
+                                                                        required="false"
+                                                                        a:placeholder="#{msg.textNewQuestionOptionDescriptionPlaceholder}"/>                                                                          
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="text-center">
+                                                                    <h:commandButton 
+                                                                        styleClass="btn btn-light me-3" 
+                                                                        value="#{msg.cancel}" 
+                                                                        type="button"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                                    </h:commandButton>
+                                                                    <h:commandButton 
+                                                                        id="addOptionModal_submit" 
+                                                                        styleClass="btn btn-primary" 
+                                                                        value="#{msg.submit}" 
+                                                                        action="#{questionManagementBean.addItem(question.createItemInfo)}" />
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </h:panelGroup>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>                            
+                                            </div>
+                                        </h:form>
+                                        <h:form id="editQuestionModalForm" onsubmit="return validateEditQuestionForm(#{question.id})">
+                                            <div class="modal fade" id="editQuestionModal_#{question.id}">                    
+                                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                                <f:passThroughAttribute name="role" value="document" />                   
+                                                <f:passThroughAttribute name="aria-hidden" value="true" /> 
+                                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                                    <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                                             <button 
+                                                                 type="button" 
+                                                                 title="#{msg.close}" 
+                                                                 class="btn btn-sm btn-outline-secondary" 
+                                                                 data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                                                             </button>          
+                                                        </h:panelGroup>
+                                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                                    <h2>#{msg.titleEditQuestion}</h2>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                                    <h:outputLabel 
+                                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                                        value="#{msg.labelTitle}"/> 
+                                                                    <h:inputText 
+                                                                        styleClass="form-control form-control-solid" 
+                                                                        value="#{question.title}" 
+                                                                        required="true"
+                                                                        a:placeholder="#{msg.textCreateQuestionTitlePlaceholder}">                                                                   
+                                                                    </h:inputText>
+                                                                    <div class="empty-edit-question-data">
+                                                                        #{msg.textNewQuestionTitleEmpty}
+                                                                    </div>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                                    <h:outputLabel 
+                                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                                        value="#{msg.maxAnswers}"/> 
+                                                                    <h:inputText 
+                                                                        styleClass="form-control form-control-solid" 
+                                                                        value="#{question.maxAnswers}" 
+                                                                        required="true"
+                                                                        onkeypress="if(event.which &lt; 48 || event.which &gt; 57) return false;"
+                                                                        a:placeholder="#{msg.textCreateQuestionMaxAnswersPlaceholder}">                                                                    
+                                                                    </h:inputText>  
+                                                                    <div class="empty-edit-question-data">
+                                                                        #{msg.textNewQuestionMaxAnswersEmpty}
+                                                                    </div>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">    
+                                                                    <h:outputLabel 
+                                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                                        value="#{msg.labelOptionType}" 
+                                                                        for="target_type"/> 
+                                                                    <h:selectOneListbox 
+                                                                        id="target_type" 
+                                                                        styleClass="form-control form-control-solid" 
+                                                                        value="#{question.type}">
+                                                                            <f:selectItems 
+                                                                                value="#{questionManagementBean.optionType}" 
+                                                                                var="mode" 
+                                                                                itemValue="#{mode}" 
+                                                                                itemLabel="#{mode}" />
+                                                                    </h:selectOneListbox>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="text-center">
+                                                                    <h:commandButton 
+                                                                        styleClass="btn btn-light me-3" 
+                                                                        value="#{msg.cancel}" 
+                                                                        type="button"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                                    </h:commandButton>
+                                                                    <h:commandButton 
+                                                                        id="editQuestionModal_submit" 
+                                                                        styleClass="btn btn-primary" 
+                                                                        value="#{msg.update}" 
+                                                                        action="#{questionManagementBean.editQuestion(question)}">
+                                                                    </h:commandButton>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </h:panelGroup>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+                                            </div>
+                                        </h:form>
+                                        <h:form>
+                                            <div class="modal fade" id="deleteItemModal_#{question.id}">                    
+                                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                                <f:passThroughAttribute name="role" value="dialog" />                   
+                                                <f:passThroughAttribute name="aria-hidden" value="true" />  
+                                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                                    <h:panelGroup layout="block" styleClass="modal-content rounded  border-warning-subtle">
+                                                        <f:passThroughAttribute name="role" value="document" />
+                                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                                            <button 
+                                                                type="button" 
+                                                                title="#{msg.close}" 
+                                                                class="btn btn-sm btn-outline-secondary" 
+                                                                data-bs-dismiss="modal"><i class="fas fa-times"></i>
+                                                             </button>          
+                                                        </h:panelGroup>
+                                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                                    <h2>#{msg.titleRemoveQuestion}</h2>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="text-center text-warning">    
+                                                                    <p><i class="fas fa-exclamation-triangle text-warning mr-2 "></i>  #{msg.deleteQuestionConfirmation} </p>
+                                                                </h:panelGroup>
+                                                                <h:panelGroup layout="block" styleClass="text-center">    
+                                                                    <h:commandButton 
+                                                                        styleClass="btn btn-light me-3"  
+                                                                        value="#{msg.cancel}" 
+                                                                        type="button"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                                    </h:commandButton>
+                                                                    <h:commandButton 
+                                                                        styleClass="btn btn-primary" 
+                                                                        value="#{msg.delete}"
+                                                                        id="delete_poll_modal_submit" 
+                                                                        action="#{questionManagementBean.deleteQuestion(question.id)}">
+                                                                    </h:commandButton>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </h:panelGroup>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+                                            </div>
+                                        </h:form>
+                                    </div>
+                                </ui:repeat>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>   
+        </div>
+    </ui:define>
+    
+     <ui:define name="scripts"> 
+        <script type="text/javascript">
+            
+            $(document).ready(function() {
+                toastr.options = {
+                closeButton: true,
+                positionClass: "toast-top-right"
+                };                
+               
+                if ($('#toastMessage').val()) {
+                    toastr.error($('#toastMessage').val());
+                }
+                
+            });    
+            
+            $(function () {
+                $('.input-group.date').datetimepicker({
+                    format: 'MM/DD/YYYY hh:mm A'
+                });
+            });
+            
+            
+        </script>
+    </ui:define>
+    
+</ui:composition>
+    
+
+
+
+
+    

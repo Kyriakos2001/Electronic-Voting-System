@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:svg = "http://www.w3.org/2000/svg"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">   
+    <ui:define name="header">       
+            <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="container-fluid">
+            <div class="row">               
+                <main class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
+                     
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                        <h:panelGroup>
+                            <h2 class="h2 text-success">
+                                #{msg.thankYou}                                                  
+
+                            </h2>
+                            <br></br>
+                            
+                        </h:panelGroup>
+                    </div> 
+                    <p>You may now close this window.</p>
+                   
+                    
+                </main>
+            </div>
+        </div>
+    </ui:define>
+    
+</ui:composition>
+

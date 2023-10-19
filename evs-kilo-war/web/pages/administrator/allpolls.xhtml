@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:svg = "http://www.w3.org/2000/svg"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+    <ui:define name="exception">
+        <input type="hidden" id="toastMessage"  value='#{pollManagementBean.getPageException()}'></input>
+    </ui:define>
+   
+    <ui:define name="header">       
+            <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+        
+         <div class="container-fluid">
+            <div class="row">
+                <ui:include src="/pages/organizer/menu.xhtml" /> 
+                 <main class="col-md-9 col-sm-12 ms-md-auto col-lg-10 px-md-4">                   
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">#{msg.titleAllPolls}</h1>
+                    </div>
+                    <!--end::Modal dialog-->
+                     <h:form>
+                        <ui:repeat value="#{pollManagementBean.getAllPolls()}" var="poll">
+                         <!--begin::Delete Modal dialog--> 
+                        <div class="modal fade" id="delete_poll_modal_#{poll.pollId}">
+                        <f:passThroughAttribute name="aria-modal" value="true" />
+                        <f:passThroughAttribute name="role" value="dialog" />
+                        <f:passThroughAttribute name="aria-hidden" value="true" />  
+                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                    <h:panelGroup layout="block" styleClass="modal-content rounded  border-warning-subtle">
+                                        <f:passThroughAttribute name="role" value="document" />
+                                        <!--begin::Modal header-->
+                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                            <!--begin::Close-->
+                                            <button type="button" title="#{msg.close}" class="btn btn-sm btn-primary btn-outline-light" data-bs-dismiss="modal">
+                                                    <i class="fas fa-times"></i>
+                                             </button>          
+                                            <!--end::Close-->
+                                        </h:panelGroup>
+                                        <!--end::Modal header-->
+
+                                        <!--begin::Modal body-->
+                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+
+                                            <!--begin:Form-->
+                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+
+                                                <!--begin::Heading-->
+                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                    <h2>#{msg.titleRemovePoll}</h2>
+                                                </h:panelGroup>
+                                                <h:panelGroup layout="block" styleClass="text-center text-warning">    
+                                                    <p><i class="fas fa-exclamation-triangle text-warning mr-2 "></i>  #{msg.deleteConfirmation} </p>
+
+                                                </h:panelGroup>
+                                                <h:panelGroup layout="block" styleClass="text-center">    
+                                                     <h:commandButton styleClass="btn btn-light me-3"  value="#{msg.cancel}" type="button"> 
+                                                          <f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                     </h:commandButton>
+
+                                                    <h:commandButton styleClass="btn btn-primary" value="#{msg.delete}"
+                                                                     id="delete_poll_modal_submit" action="#{pollManagementBean.removeAnyPoll(poll.pollId)}" />
+                                                </h:panelGroup>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                        </div>
+                         <!--end::Modal dialog-->
+                        </ui:repeat>
+                    </h:form>
+                    <div class="table-responsive small">
+                        <h:dataTable value="#{pollManagementBean.getAllPolls()}" var="poll" class="table table-hover table-striped table-borderless table-light">
+                            <h:column>
+                                <f:facet name="header">#</f:facet>
+                                #{poll.pollId}
+                            </h:column>
+                            <h:column class="text-wrap max-w-200">
+                                <f:facet name="header">#{msg.labelTitle}</f:facet>
+                                #{poll.title}
+                            </h:column>
+                            <h:column class="text-wrap max-w-200">
+                                <f:facet name="header">#{msg.labelDescription}</f:facet>
+                                #{poll.description}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelStartDate}</f:facet>
+                                #{poll.startDateString}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelEndDate}</f:facet>
+                                #{poll.endDateString}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.organizer}</f:facet>
+                                #{poll.organizerName}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelPollStatus}</f:facet>
+                                <h:outputText class="badge w-100 rounded-1 #{pollManagementBean.getBadgeType(poll)}" value="#{poll.state}"/>
+                            </h:column>
+                             <h:column>
+                                <f:facet name="header">#{msg.labelActions}</f:facet>
+                                
+                                <h:form id="manage_poll_form">
+                                    <h:panelGroup layout="block">
+                                        <button 
+                                            type="button"  
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#delete_poll_modal_#{poll.pollId}" 
+                                            class="btn btn-outline-danger btn-sm borderless" 
+                                            title="#{msg.delete}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </h:panelGroup>  
+                                </h:form>
+                             </h:column>
+                        </h:dataTable>
+                    </div>
+                </main>
+            </div>
+         </div>
+    </ui:define>  
+    
+    <ui:define name="scripts"> 
+        <script type="text/javascript">
+            
+            $(document).ready(function() {
+                toastr.options = {
+                closeButton: true,
+                positionClass: "toast-top-right"
+                };                
+               
+                if ($('#toastMessage').val()) {
+                    toastr.error($('#toastMessage').val());
+                }
+            });
+    
+            function closeModal(modalId) {
+                // Assuming you are using Bootstrap modal, you can use the modal selector to hide the modal
+                $('#' + modalId).modal('hide');
+            }
+
+        </script>
+    </ui:define>
+    
+</ui:composition>

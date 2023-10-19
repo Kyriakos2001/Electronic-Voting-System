@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:f="http://java.sun.com/jsf/core">
+    <ui:define name="header">
+            <ui:include src="/pages/shared/header.xhtml" />
+    </ui:define>
+    <ui:define name="content" >
+        <h:outputStylesheet name="login.css" library="css" />
+        <div id="loginpage">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 col-sm-9 login-block">
+                        <div class="card">
+                            <nav>
+                                <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+                                    <button class="nav-link active" id="nav-login-tab" data-bs-toggle="tab" data-bs-target="#nav-login" type="button" role="tab" aria-controls="nav-login" aria-selected="true">LDAP</button>
+                                    <button class="nav-link" id="nav-toke-tab" data-bs-toggle="tab" data-bs-target="#nav-token" type="button" role="tab" aria-controls="nav-token" aria-selected="false">Token</button>
+                                </div>
+                            </nav>
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="nav-login" role="tabpanel" aria-labelledby="nav-login-tab">
+                                    <form class="d-grid p-3 gap-3" role="form" method="post" action="j_security_check" name="loginForm">
+                                        <div class="text-left">
+                                            <h1 class="mb-3 font-weight-normal align-content-center">${msg.loginHeader}</h1>
+                                        </div>
+                                        <h:outputText 
+                                            value="#{loginBean.pageException}" 
+                                            lang="#{localeBean.userLocale.language}" 
+                                            style="color: red">
+                                        </h:outputText>
+                                        <input 
+                                            class="form-control mb-3 input-sm"
+                                            placeholder="${msg.loginEmail}"
+                                            autofocus="true"
+                                            type="email"
+                                            id="username"
+                                            name="j_username"
+                                            autocomplete="off"
+                                            required="true"
+                                            requiredMessage="${msg.loginEmailRequiredMessage}" 
+                                            validatorMessage="${msg.loginEmailValidatorMessage}"/>
+                                        <input 
+                                            class="form-control input-sm"
+                                            type="password" 
+                                            placeholder="${msg.loginPassword}"
+                                            id="password"
+                                            name="j_password"
+                                            autocomplete="off"
+                                            required="true"
+                                            requiredMessage="${msg.loginPasswordValidatorMessage}"/>
+                                        <button 
+                                            class="btn btn-primary"
+                                            type="submit">
+                                            Login
+                                        </button>
+                                        <h:panelGroup rendered="#{param['j_username'] != null}">
+                                            <h:outputText value="${msg.loginFailed}" style="color: red;" />
+                                        </h:panelGroup>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="nav-token" role="tabpanel" aria-labelledby="nav-token-tab">
+                                    <form class="d-grid p-3 gap-3" role="form" name="tokenForm">
+                                        <div class="text-left">
+                                            <h1 class="mb-3 font-weight-normal align-content-center">${msg.tokenValidation}</h1>
+                                        </div>
+                                        <h:form>
+                                            <h:inputText 
+                                                class="form-control mb-3 input-sm"
+                                                id="token"
+                                                autocomplete="off"
+                                                required="true"
+                                                a:placeholder="token"
+                                                value="#{tokenBean.token}"
+                                                requiredMessage="${msg.tokenPleasEnter}" />
+                                            <h:commandButton 
+                                                class="btn btn-primary" 
+                                                value="Start voting" 
+                                                action="#{tokenBean.redirectToVotingPage()}" />
+                                            <h:messages globalOnly="true" layout="table" errorStyle="color:red; display:block"/>
+                                            <h:message for="token" errorStyle="color:red; display:block"/>
+                                        </h:form>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="text-center p-3 bg-transparent">
+                                <p class="text-dark">&copy; ${msg.loginCopyright}</p> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

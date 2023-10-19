@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:svg = "http://www.w3.org/2000/svg"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">   
+    
+    <ui:define name="exception">
+        <input type="hidden" id="toastMessage"  value='#{pollManagementBean.getPageException()}'></input>
+    </ui:define>
+   
+    <ui:define name="header">       
+            <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+         <div class="container-fluid">
+            <div class="row">
+                <ui:include src="/pages/organizer/menu.xhtml" /> 
+                 <main class="col-md-9 col-sm-12 ms-md-auto col-lg-10 px-md-4">                   
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">#{msg.titlePolls}</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button 
+                                type="button" 
+                                class="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-1" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#create_poll_modal">#{msg.titleCreatePoll}
+                            </button>
+                        </div>
+                    </div>
+                     
+                    <!--begin::Create Modal dialog-->  
+                    <h:panelGroup layout="block" styleClass="modal fade" id="create_poll_modal">
+                        <f:passThroughAttribute name="aria-modal" value="true" />
+                        <f:passThroughAttribute name="role" value="dialog" />
+                        <h:form id="create_poll_modal_form" styleClass="needs-validation" onsubmit="return validateCreatePollForm()">                            
+                            <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                    <!--begin::Modal header-->
+                                    <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                        <!--begin::Close-->
+                                         <button 
+                                             type="button" 
+                                             title="#{msg.close}" 
+                                             class="btn btn-sm btn-outline-secondary" 
+                                             data-bs-dismiss="modal"
+                                             onclick="closeCreatePollModal()"
+                                             ><i class="fas fa-times"></i>
+                                         </button>                                  
+                                        <!--end::Close-->
+                                    </h:panelGroup>
+                                    <!--end::Modal header-->
+
+                                    <!--begin::Modal body-->
+                                    <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                        <!--begin:Form-->
+                                        <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                            <!--begin::Heading-->
+                                            <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                <h2>#{msg.titleCreatePoll}</h2>
+                                            </h:panelGroup>
+                                            <!--end::Heading-->
+
+                                            <!--begin::Input group-->
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.labelTitle}" 
+                                                    for="target_title"/> 
+                                                <h:inputText 
+                                                    styleClass="form-control form-control-solid poll-title-modal" 
+                                                    id="target_title" 
+                                                    value="#{pollManagementBean.getcreatePollDto().title}" 
+                                                    a:placeholder="#{msg.textCreatePollTitlePlaceholder}">
+                                                </h:inputText>
+                                                <div class="empty-poll-data">
+                                                    #{msg.textNewPollTitleEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <!--end::Input group-->
+
+                                            <!--begin::Input group-->
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3">                                           
+                                                <h:outputLabel 
+                                                    styleClass="mb-2" 
+                                                    value="#{msg.labelDescription}"/>
+                                                <h:inputTextarea 
+                                                    styleClass="form-control form-control-solid poll-description-modal" 
+                                                    rows="3" 
+                                                    value="#{pollManagementBean.getcreatePollDto().description}"
+                                                    a:placeholder="#{msg.textCreatePollDescriptionPlaceholder}">
+                                                </h:inputTextarea>
+                                            </h:panelGroup>
+                                            <!--end::Input group-->
+                                            
+                                            <h:panelGroup styleClass="d-flex flex-column form-group mb-3">
+                                                <h:outputLabel 
+                                                    for="createStartDateInput" 
+                                                    styleClass="form-label required" 
+                                                    value="#{msg.labelStartDate}" />
+                                                <div class="input-group date bootstrap-datetimepicker-widget" id="createStartDateInput" data-target-input="nearest">
+                                                    <h:inputText 
+                                                        id="createStartDateInput" 
+                                                        onkeydown="return false"
+                                                        styleClass="form-control datetimepicker-input poll-start-date-modal" 
+                                                        value="#{pollManagementBean.getcreatePollDto().startDateString}" 
+                                                        a:placeholder="#{msg.textCreatePollStartDatePlaceholder}"/>
+                                                    <span 
+                                                        class="input-group-text" 
+                                                        data-target="#createStartDateInput" 
+                                                        data-toggle="datetimepicker"><i class="fa fa-calendar-alt"></i>
+                                                    </span>
+                                                    <div class="empty-poll-data">
+                                                        #{msg.textNewPollStartDateEmpty}
+                                                    </div>
+                                                </div>
+                                            </h:panelGroup>
+                                            
+                                            <h:panelGroup styleClass="d-flex flex-column form-group mb-3">
+                                                <h:outputLabel 
+                                                    for="createEndDateInput" 
+                                                    styleClass="form-label required" 
+                                                    value="#{msg.labelEndDate}" />
+                                                <div class="input-group date bootstrap-datetimepicker-widget" id="createEndDateInput" data-target-input="nearest">
+                                                    <h:inputText 
+                                                        id="createEndDateInput" 
+                                                        onkeydown="return false"
+                                                        styleClass="form-control datetimepicker-input poll-end-date-modal" 
+                                                        value="#{pollManagementBean.getcreatePollDto().endDateString}" 
+                                                        a:placeholder="#{msg.textCreatePollEndDatePlaceholder}"/>
+                                                    <span 
+                                                        class="input-group-text" 
+                                                        data-target="#createEndDateInput" 
+                                                        data-toggle="datetimepicker"><i class="fa fa-calendar-alt"></i>
+                                                    </span>
+                                                     <div class="empty-poll-data">
+                                                        #{msg.textNewPollEndDateEmpty}
+                                                    </div>
+                                                </div>
+                                            </h:panelGroup>
+
+                                            <!--begin::Actions-->
+                                            <h:panelGroup layout="block" styleClass="text-center">
+                                                <h:commandButton 
+                                                    styleClass="btn btn-light me-3" 
+                                                    value="#{msg.cancel}" 
+                                                    type="button"
+                                                    onclick="closeCreatePollModal()"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                </h:commandButton>
+
+                                                <h:commandButton 
+                                                    styleClass="btn btn-primary" 
+                                                    value="#{msg.submit}" 
+                                                    id="create_poll_modal_submit" 
+                                                    action="#{pollManagementBean.createPoll()}" />
+                                            </h:panelGroup>
+                                            <!--end::Actions-->
+                                        </h:panelGroup>
+                                        <!--end:Form-->
+                                    </h:panelGroup>
+                                    <!--end::Modal body-->
+                                </h:panelGroup>
+                            </h:panelGroup>                            
+                        </h:form>
+                    
+                    </h:panelGroup>
+                    <!--end::Modal dialog-->
+                     <h:form >
+                        <ui:repeat value="#{pollManagementBean.getPolls()}" var="poll">
+                         <!--begin::Delete Modal dialog--> 
+                            <div class="modal fade" id="delete_poll_modal_#{poll.pollId}">                    
+                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                <f:passThroughAttribute name="role" value="dialog" />                   
+                                <f:passThroughAttribute name="aria-hidden" value="true" />  
+
+                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                    <h:panelGroup layout="block" styleClass="modal-content rounded  border-warning-subtle">
+                                        <f:passThroughAttribute name="role" value="document" />
+                                        <!--begin::Modal header-->
+                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                            <!--begin::Close-->
+                                             <button 
+                                                 type="button" 
+                                                 title="#{msg.close}" 
+                                                 class="btn btn-sm btn-outline-secondary" 
+                                                 data-bs-dismiss="modal"
+                                                 ><i class="fas fa-times"></i>
+                                             </button>                                  
+                                            <!--end::Close-->
+                                        </h:panelGroup>
+                                        <!--end::Modal header-->
+                                        <!--begin::Modal body-->
+                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                            <!--begin:Form-->
+                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                <!--begin::Heading-->
+                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                    <h2>#{msg.titleRemovePoll}</h2>
+                                                </h:panelGroup>
+                                                <h:panelGroup layout="block" styleClass="text-center text-warning">    
+                                                    <p><i class="fas fa-exclamation-triangle text-warning mr-2 "></i>  #{msg.deleteConfirmation} </p>
+                                                </h:panelGroup>
+                                                <h:panelGroup layout="block" styleClass="text-center">    
+                                                     <h:commandButton 
+                                                         styleClass="btn btn-light me-3"  
+                                                         value="#{msg.cancel}" 
+                                                         type="button"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                     </h:commandButton>
+
+                                                    <h:commandButton 
+                                                        styleClass="btn btn-primary" 
+                                                        value="#{msg.delete}" 
+                                                        id="delete_poll_modal_submit" 
+                                                        action="#{pollManagementBean.removePoll(poll.pollId)}" />
+                                                </h:panelGroup>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                            <!--end::Modal dialog-->
+                            <!--begin::Edit Modal dialog--> 
+                            <div class="modal fade" id="edit_poll_modal_#{poll.pollId}">                    
+                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                <f:passThroughAttribute name="role" value="dialog" />                   
+                                <f:passThroughAttribute name="aria-hidden" value="true" /> 
+
+                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                    <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                        <!--begin::Modal header-->
+                                       <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                            <!--begin::Close-->
+                                            <button 
+                                                type="button" 
+                                                title="#{msg.close}" 
+                                                class="btn btn-sm btn-outline-secondary" 
+                                                data-bs-dismiss="modal"
+                                                ><i class="fas fa-times"></i>
+                                            </button>                                  
+                                            <!--end::Close-->
+                                        </h:panelGroup>
+                                        <!--end::Modal header-->
+                                        <!--begin::Modal body-->
+                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                            <!--begin:Form-->
+                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                <!--begin::Heading-->
+                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                    <h2>#{msg.titleEditPoll}</h2>
+                                                </h:panelGroup>
+                                                <!--end::Heading-->
+                                                <!--begin::Input group-->
+                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                    <h:outputLabel 
+                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                        value="#{msg.labelTitle}" 
+                                                        for="target_title"/> 
+                                                    <h:inputText 
+                                                        styleClass="form-control form-control-solid" 
+                                                        id="target_title" 
+                                                        value="#{poll.title}" 
+                                                        required="true"><f:attribute name="placeholder" value="Enter Title" />
+                                                    </h:inputText>
+                                                    <h:message 
+                                                        for="target_title" 
+                                                        styleClass="fv-plugins-message-container fv-plugins-message-container--enabled invalid-feedback"/>
+                                                </h:panelGroup>
+                                                <!--end::Input group-->
+                                                <!--begin::Input group-->
+                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3">                                           
+                                                    <h:outputLabel 
+                                                        styleClass="mb-2" 
+                                                        value="#{msg.labelDescription}"/>
+                                                    <h:inputTextarea 
+                                                        styleClass="form-control form-control-solid" 
+                                                        rows="3" 
+                                                        value="#{poll.description}"><f:attribute name="placeholder" value="Enter Details" />
+                                                    </h:inputTextarea>
+                                                </h:panelGroup>
+                                                <!--end::Input group-->
+                                                  <h:panelGroup styleClass="d-flex flex-column form-group mb-3">
+                                                    <h:outputLabel 
+                                                        for="createStartDateInput_#{poll.pollId}" 
+                                                        styleClass="form-label" 
+                                                        value="#{msg.labelStartDate}" />
+                                                    <div class="input-group date" id="createStartDateInput_#{poll.pollId}" data-target-input="nearest">
+                                                        <h:inputText 
+                                                            id="createStartDateInput" 
+                                                            styleClass="form-control datetimepicker-input" 
+                                                            value="#{poll.startDateString}" />
+                                                        <span 
+                                                            class="input-group-text" 
+                                                            data-target="#createStartDateInput_#{poll.pollId}" 
+                                                            data-toggle="datetimepicker"><i class="fa fa-calendar-alt"></i>
+                                                        </span>
+                                                    </div>
+                                                </h:panelGroup>
+
+                                                <h:panelGroup styleClass="d-flex flex-column form-group mb-3">
+                                                    <h:outputLabel 
+                                                        for="createEndDateInput_#{poll.pollId}" 
+                                                        styleClass="form-label" 
+                                                        value="#{msg.labelEndDate}" />
+                                                    <div class="input-group date" id="createEndDateInput_#{poll.pollId}" data-target-input="nearest">
+                                                        <h:inputText 
+                                                            id="createEndDateInput" 
+                                                            styleClass="form-control datetimepicker-input" 
+                                                            value="#{poll.endDateString}" />
+                                                        <span 
+                                                            class="input-group-text" 
+                                                            data-target="#createEndDateInput_#{poll.pollId}" 
+                                                            data-toggle="datetimepicker"><i class="fa fa-calendar-alt"></i>
+                                                        </span>
+                                                    </div>
+                                                </h:panelGroup>
+
+                                                <!--begin::Actions-->
+                                                <h:panelGroup layout="block" styleClass="text-center">
+                                                     <h:commandButton 
+                                                         styleClass="btn btn-light me-3" 
+                                                         value="#{msg.cancel}" 
+                                                         type="button"> 
+                                                      <f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                     </h:commandButton>
+
+                                                    <h:commandButton 
+                                                        styleClass="btn btn-primary" 
+                                                        value="#{msg.update}"
+                                                        id="edit_poll_modal_submit" 
+                                                        action="#{pollManagementBean.editPoll(poll)}" />
+                                                </h:panelGroup>
+                                                <!--end::Actions-->
+                                            </h:panelGroup>
+                                            <!--end:Form-->
+                                        </h:panelGroup>
+                                        <!--end::Modal body-->
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                            <!--end::Modal dialog-->
+                           
+                            <!--begin::Start Poll Modal dialog-->  
+                            <div class="modal fade" id="start_poll_modal_#{poll.pollId}">                    
+                                <f:passThroughAttribute name="aria-modal" value="true" />                    
+                                <f:passThroughAttribute name="role" value="dialog" />                   
+                                <f:passThroughAttribute name="aria-hidden" value="true" /> 
+                                <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                    <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                        <!--begin::Modal header-->
+                                        <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                            <!--begin::Close-->
+                                             <button 
+                                                 type="button" 
+                                                 title="#{msg.close}" 
+                                                 class="btn btn-sm btn-outline-secondary" 
+                                                 data-bs-dismiss="modal"
+                                                 ><i class="fas fa-times"></i>
+                                             </button>                                  
+                                            <!--end::Close-->
+                                        </h:panelGroup>
+                                        <!--end::Modal header-->
+                                        <!--begin::Modal body-->
+                                        <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                            <!--begin:Form-->
+                                            <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                                <!--begin::Heading-->
+                                                <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                    <h2>#{msg.titleStartPoll}</h2>
+                                                </h:panelGroup>
+                                                <!--end::Heading-->
+                                                <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                    <h:outputLabel 
+                                                        styleClass="d-flex align-items-center mb-2 required" 
+                                                        value="#{msg.textSelectVoterList}" 
+                                                        for="target_title"/> 
+                                                    <h:selectOneMenu
+                                                        id="optionType" 
+                                                        styleClass="form-control form-control-solid" 
+                                                        value="#{poll.startPollDto.voterListName}">
+                                                        <f:selectItem itemValue="0" itemLabel="Select Voter List" />
+                                                            <f:selectItems 
+                                                                value="#{voterBean.getAllVoterLists()}" 
+                                                                var="voterList" 
+                                                                itemValue="#{voterList.voterListName}" 
+                                                                itemLabel="#{voterList.voterListName}" />
+                                                    </h:selectOneMenu>
+                                                    <!--begin::Actions-->
+                                                    <div class="modal-footer">
+                                                         <h:commandButton 
+                                                             styleClass="btn btn-light me-3" 
+                                                             value="#{msg.cancel}" 
+                                                             type="button"> 
+                                                          <f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                         </h:commandButton>
+
+                                                        <h:commandButton 
+                                                            styleClass="btn btn-primary" 
+                                                            value="#{msg.start}"
+                                                            id="start_poll_modal_submit" 
+                                                            action="#{pollManagementBean.startPoll(poll.startPollDto)}" />
+                                                    </div>
+                                                    <!--end::Actions-->
+                                                </h:panelGroup>
+                                                <!--end:Form-->
+                                            </h:panelGroup>
+                                            <!--end::Modal body-->
+                                        </h:panelGroup>
+                                    </h:panelGroup> 
+                                </h:panelGroup>
+                            </div>
+                            <!--end::Modal dialog-->
+                        </ui:repeat>
+                    </h:form>
+                    <div class="table-responsive small">
+                        <h:dataTable 
+                            value="#{pollManagementBean.getPolls()}" 
+                            var="poll" 
+                            class="table table-hover table-striped table-borderless table-light">
+                            <h:column>
+                                <f:facet name="header">#</f:facet>
+                                #{poll.pollId}
+                            </h:column>
+                            <h:column class="text-wrap max-w-200">
+                                <f:facet name="header">#{msg.labelTitle}</f:facet>
+                                #{poll.title}
+                            </h:column>
+                            <h:column class="text-wrap max-w-200">
+                                <f:facet name="header">#{msg.labelDescription}</f:facet>
+                                #{poll.description}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelStartDate}</f:facet>
+                                #{poll.startDateString}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelEndDate}</f:facet>
+                                #{poll.endDateString}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">#{msg.labelPollStatus}</f:facet>
+                                <h:panelGroup layout="block">
+                                    <h:outputText class="badge w-100 rounded-1 #{pollManagementBean.getBadgeType(poll)}" value="#{poll.state}"/>
+                                </h:panelGroup>                             
+                            </h:column>
+                            <h:column class="pt-xs-0">
+                                <f:facet name="header">#{msg.labelActions}</f:facet>
+                                <h:form id="manage_poll_form">
+                                    <h:panelGroup layout="block" rendered="#{poll.state=='PREPARED'}" 
+                                                  styleClass="d-md-block d-lg-inline-flex d-xs-options-none mb-sm-1">
+                                        <h:outputLink 
+                                            value="/evs-kilo/pages/organizer/questions.xhtml"
+                                            styleClass="btn btn-light btn-sm mx-1"><i class="fas fa-tasks card-link "></i> #{msg.titleQuestions}
+                                            <f:param name="pollId" value=" #{poll.pollId}" />
+                                        </h:outputLink>
+                                        </h:panelGroup>
+                                    <h:panelGroup layout="block" rendered="#{poll.state == 'FINISHED' and poll.pollResultDto.submittedVotes >= 3}" 
+                                                  styleClass="d-md-inline-flex d-xs-options-none mb-sm-1">
+                                         <h:outputLink 
+                                             value="/evs-kilo/pages/organizer/results.xhtml?pollId=#{poll.pollId}"
+                                                styleClass="btn btn-borderless btn-info btn-sm mx-1"> #{msg.titleResults}                                       
+                                            </h:outputLink>
+                                    </h:panelGroup>                                    
+                                        <h:panelGroup layout="block" rendered="#{poll.state == 'FINISHED'}" 
+                                                      styleClass="d-md-inline-flex d-xs-options-none mb-sm-1">
+                                            <h:panelGroup rendered="#{poll.pollResultDto.publishKey != null}">                                           
+                                                <h:commandButton value="#{msg.unpublish}" class="btn btn-borderless btn-warning btn-sm " action='#{pollManagementBean.unPublishResult(poll.pollId)}'/>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{poll.pollResultDto.publishKey == null and poll.pollResultDto.submittedVotes >= 3}">
+                                                <h:commandButton value="#{msg.publish}" class="btn btn-borderless btn-success btn-sm mx-1" action='#{pollManagementBean.publishResult(poll.pollId)}'/>
+                                            </h:panelGroup>  
+                                        </h:panelGroup>
+                                     <h:panelGroup layout="block" rendered="#{poll.state=='PREPARED'}" styleClass="d-md-inline-flex d-xs-options-none">
+                                         <button 
+                                             type="button" 
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#edit_poll_modal_#{poll.pollId}" 
+                                             class="btn btn-outline-dark btn-sm borderless mx-1" 
+                                             title="#{msg.edit}"><i class="fa fa-edit"></i>
+                                            </button>
+                                        </h:panelGroup>
+                                     <h:panelGroup layout="block" rendered="#{poll.state=='PREPARED' or poll.state == 'FINISHED'}" styleClass="d-md-inline-flex d-xs-options-none">
+                                        <button 
+                                            type="button"  
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#delete_poll_modal_#{poll.pollId}" 
+                                            class="btn btn-outline-danger btn-sm borderless mx-1" 
+                                            title="#{msg.delete}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                     </h:panelGroup>
+                                     <h:panelGroup layout="block" rendered="#{poll.state=='PREPARED'}" styleClass="d-md-inline-flex d-xs-options-none">
+                                        <button 
+                                            type="button"  
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#start_poll_modal_#{poll.pollId}" 
+                                            class="btn btn-outline-primary btn-sm borderless mx-1" 
+                                            title="#{msg.start}">
+                                            #{msg.start}
+                                        </button>
+                                    </h:panelGroup>    
+                                    
+                                                           
+                        <div class="dropdown btn-toolbar mb-2 mb-md-0 d-md-none mt-2 d-xs-options-block">
+                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" >
+                              <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu text-small ms-7">  
+                            <li class="fs-6">
+                                <h:panelGroup rendered="#{poll.state=='PREPARED'}">
+                                    <h:outputLink 
+                                         value="/evs-kilo/pages/organizer/questions.xhtml"
+                                         styleClass="dropdown-item"> #{msg.titleQuestions}
+                                         <f:param name="pollId" value=" #{poll.pollId}" />
+                                     </h:outputLink>
+                                </h:panelGroup>
+                            </li>                            
+                              <li class="fs-6">
+                                <h:panelGroup rendered="#{poll.state=='PREPARED'}">
+                                    <button 
+                                     type="button" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#edit_poll_modal_#{poll.pollId}" 
+                                     class="dropdown-item"> Edit
+                                    </button>
+                                </h:panelGroup>
+                            </li>   
+                            <li class="fs-6">
+                                <h:panelGroup rendered="#{poll.state=='PREPARED' or poll.state == 'FINISHED'}">
+                                    <button 
+                                        type="button"  
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#delete_poll_modal_#{poll.pollId}" 
+                                        class="dropdown-item">
+                                        Delete                               
+                                    </button>
+                                </h:panelGroup>
+                            </li>  
+                            <li class="fs-6">
+                                  <h:panelGroup layout="block" rendered="#{poll.state == 'FINISHED' and poll.pollResultDto.submittedVotes >= 3}">
+                                         <h:outputLink 
+                                             value="/evs-kilo/pages/organizer/results.xhtml?pollId=#{poll.pollId}"
+                                                styleClass="dropdown-item"> #{msg.titleResults}                                         
+                                            </h:outputLink>
+                                    </h:panelGroup> 
+                            </li>
+                            <li class="fs-6">                                
+                                <h:panelGroup rendered="#{poll.state == 'FINISHED' and poll.pollResultDto.publishKey != null}">
+                                   <h:commandLink
+                                       immediate="true"
+                                       action="unpublish"
+                                       class="dropdown-item"
+                                       actionListener="#{pollManagementBean.unPublishResult(poll.pollId)}"
+                                       value=" #{msg.unpublish}"/>
+                                </h:panelGroup>                                
+                            </li>
+                            <li class="fs-6">
+                                <h:panelGroup rendered="#{poll.pollResultDto.publishKey == null and poll.pollResultDto.submittedVotes >= 3}">
+                                    <h:commandButton value=" #{msg.publish}" class="dropdown-item" 
+                                                     action='#{pollManagementBean.publishResult(poll.pollId)}' />
+                                </h:panelGroup>
+                            </li>
+                                <li class="fs-6">
+                                     <h:panelGroup rendered="#{poll.state=='PREPARED'}">
+                                        <button 
+                                            type="button"  
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#start_poll_modal_#{poll.pollId}" 
+                                            class="dropdown-item">
+                                            #{msg.start}
+                                        </button>
+                                    </h:panelGroup>    
+                                </li>
+                                
+                        </ul>
+                        </div>
+                                </h:form>
+                             </h:column>
+                        </h:dataTable>
+                    </div>                   
+                </main>
+            </div>
+         </div>
+    </ui:define>  
+    
+    <ui:define name="scripts"> 
+        <script type="text/javascript">
+            $(document).ready(function() {
+                toastr.options = {
+                closeButton: true,
+                positionClass: "toast-top-right"
+                };                
+                if ($('#toastMessage').val()) {
+                    toastr.error($('#toastMessage').val());
+                }
+            });
+   
+            function closeCreatePollModal() {
+                $("#create_poll_modal_form input[type=text], #create_poll_modal_form textarea")
+                    .each(function () {
+                        $(this).val('');
+                        $(this).removeAttr("style", "border-color:red;");
+                        $(this).next().siblings('.empty-poll-data').hide();
+                        $(this).next('.empty-poll-data').hide();
+                    }
+                );
+            }
+            
+            function closeModal(modalId) {
+                $('#' + modalId).modal('hide');
+            }
+            $(function () {
+                $('.input-group.date').datetimepicker({
+                    format: 'MM/DD/YYYY hh:mm A'
+                });
+            });
+
+            $(document).on('mouseup touchend', function (e) {
+                var container = $(".bootstrap-datetimepicker-widget");
+                var calendarDropDown = $(".bootstrap-datetimepicker-widget.dropdown-menu");
+                if(calendarDropDown.length > 0)
+                {
+                    if (!container.is(e.target))
+                    if (container.has(e.target).length === 0) {
+                        calendarDropDown.hide();
+                    }
+                }
+            });
+        </script>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,76 @@
+Login Page -----> (1)  -- Anu Antony
+	- LDAP authentication 
+		- If ORGANIZER  -> Home Page - Organizer
+		- if ADMIN -> Home Page - Administrator
+		
+		Front-end
+		1.login.xhtml
+		2.registration.xhtml
+		3.forgotpassword.xhtml 
+			- create a dummy page for showing the login status
+			
+		
+
+Home Page - Organizer -- Uthara
+	- Landing Page
+	- Language Switch Option
+	- User Profile display (Includes Logout option)
+	- Lists all the polls created by Organizer or tagged 
+	- "Create New Poll" Button -> (Opens Create New Poll Page)	- 
+
+Home Page - Administrator --Uthara
+	- Landing page of Adminstrator
+	- Language Switch Option
+	- User Profile display (Includes Logout option)
+	- Lists all the polls of the University (Includes the name of the Organizer who belongs to the Poll)
+	
+Create New Poll - Page. -- Aishwarya (Not Started/Free)
+	- Only ORGANIZER or ADMIN can open page.
+	- Includes
+		- Name of the Poll
+		- Start Date
+		- End Date
+		- click "Next"
+			- Add Participants ( Participants page)
+			- click "Next"
+				- Add Questions ( Questions Page)
+					- Question
+					- Solution Type
+						- YES/NO
+						- MCQ
+						- Free Text
+					- Click "Submit"
+		- Lists the Poll in Home Page
+		
+Start or Finish or Delete Poll Page
+	- "Start" click - if Poll is in PREPARED phase
+		- Uniques 16 char token generation
+		- Email send to participants with link and token
+	- "Finish" - if Poll is in STARTED phase
+		- Results published 
+		- Email send to participants with result page link
+	- "Delete" click
+		- Delete triggered
+		- Email notification send to participants if Poll already started
+
+Edit Poll - Single Page display. ---Aishwarya (Not Started/Free)
+	- Edit entire Poll if in PREPARED phase 
+	- Edit only End Date if STARTED phase
+
+Preview Page
+	- View page of the Poll
+
+Participants Page
+	- Text field for entering participant email ids
+	- "Add" button
+	- Multiple select option
+
+Questions Page
+	- Question
+	- Answer type ( YES/NO, Free Text, Multiple Choice)
+	- Answer Option (Popout in according to that)
+		- if Yes/No
+			- Two radio buttons (yes and no)
+		- if MCQ
+			- min 2 check boxes 
+			- "+" button to add more check boxes

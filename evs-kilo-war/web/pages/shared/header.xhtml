@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:svg = "http://www.w3.org/2000/svg"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:form>
+        <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a 
+                class="navbar-brand col-md-3 col-lg-2 me-0 px-3 mx-sm-5 mx-md-0"
+                href="#">EVS-2023</a>
+                <button
+                    class="navbar-toggler position-absolute d-md-none collapsed px-sm-2"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#sidebarMenu"
+                    aria-controls="sidebarMenu"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"/>
+                </button>
+                <div class="nav-dropdown">
+                    <div class="dropdown flag text-end pe-3">
+                        <a
+                            href="#"
+                            class="d-block link-body-emphasis text-decoration-none dropdown-toggle white-icon"
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            <h:graphicImage name="#{localeBean.flagImageUrl}" />
+                        </a>
+                        <ul class="dropdown-menu text-small ms-7">  
+                            <li>
+                                <h:commandLink 
+                                    immediate="true"
+                                    class="dropdown-item" 
+                                    actionListener="#{localeBean.selectEnglish}" 
+                                    value="English">
+                                    <h:graphicImage class="p-1 flag-dropdown" name="icons/flags/US.png" />
+                                </h:commandLink>
+                            </li>
+                            <li>
+                                <h:commandLink 
+                                    immediate="true" 
+                                    class="dropdown-item" 
+                                    actionListener="#{localeBean.selectGerman}" 
+                                    value="German">
+                                    <h:graphicImage class="p-1 flag-dropdown" name="icons/flags/DE.png" />
+                                </h:commandLink>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dropdown text-end pe-3">
+                        <h:panelGroup rendered="#{loginBean.isLoggedIn()}">
+                            <a 
+                                href="#" 
+                                class="d-block link-body-emphasis text-decoration-none dropdown-toggle white-icon"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="bi bi-person-circle white-icon nav-icon"/>
+                            </a>
+                            <ul class="dropdown-menu  dropdown-menu-end  text-small">
+                                <li rendered="${loginBean.isLoggedIn()}">
+                                    <h:outputLabel class="dropdown-item">#{loginBean.user.username}</h:outputLabel>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider"/>
+                                </li>
+                                <li rendered = "${loginBean.isLoggedIn()}">
+                                    <h:commandLink
+                                        immediate="true"
+                                        action="homepage"
+                                        class="dropdown-item"
+                                        actionListener="#{loginBean.logout}"
+                                        value="#{msg.loginSignOut}"/>
+                                </li>
+                            </ul>
+                        </h:panelGroup>
+                    </div>
+               </div>
+        </header>
+    </h:form>
+</ui:composition>

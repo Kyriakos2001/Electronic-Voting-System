@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:c="http://java.sun.com/jstl/core">      
+   
+    <ui:define name="exception">
+        <input type="hidden" id="toastMessage"  value='#{voterBean.getPageException()}'></input>
+    </ui:define>
+    
+    <ui:define name="header">       
+        <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="container-fluid">
+            <div class="row">
+                <ui:include src="/pages/organizer/menu.xhtml" /> 
+                <main class="col-md-9 col-sm-12 ms-md-auto col-lg-10 px-md-4">   
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1>#{msg.titleVotersList}</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-1"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#create_voterList_modal"
+                                    onclick="createVoterList()">
+                                        #{msg.textCreateVotersList}
+                                </button>
+                            </div>
+                    </div>
+
+                    <!-- modal Create Participants List -->
+                    <h:panelGroup layout="block" styleClass="modal fade" id="create_voterList_modal">
+                        <f:passThroughAttribute name="aria-modal" value="true" />
+                        <f:passThroughAttribute name="role" value="dialog" />
+                        <h:form id="create_voterList_modal_form"  styleClass="needs-validation" onsubmit="return validateCreateVoterListForm()"> 
+                            <input type="hidden" id="voter-list-operation" class="voter-list-operation" value="new"/>
+                            <h:panelGroup layout="block" styleClass="modal-dialog modal-dialog-centered mw-650px">
+                                <h:panelGroup layout="block" styleClass="modal-content rounded">
+                                    <h:panelGroup layout="block" styleClass="modal-header pb-0 border-0 justify-content-end">
+                                        <!--begin::Close-->
+                                         <button 
+                                             type="button" 
+                                             title="#{msg.close}" 
+                                             class="btn btn-sm btn-outline-secondary" 
+                                             data-bs-dismiss="modal"
+                                             onclick="closeCreateVoterListModal()"><i class="fas fa-times"></i>
+                                         </button>                                  
+                                        <!--end::Close-->
+                                    </h:panelGroup>
+                                    <h:panelGroup layout="block" styleClass="modal-body scroll-y px-10 px-lg-5 pt-0 pb-5">
+                                        <h:panelGroup layout="block" styleClass="form fv-plugins-bootstrap5 fv-plugins-framework">
+                                            <h:panelGroup layout="block" styleClass="mb-3 text-center">
+                                                <h2 id="create-voter-list-title-modal">#{msg.textCreateVotersList}</h2>
+                                                <h2 id="add-voter-title-modal">#{msg.textAddVotersList}</h2>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3 fv-row fv-plugins-icon-container">                                         
+                                                <h:outputLabel 
+                                                    styleClass="d-flex align-items-center mb-2 required" 
+                                                    value="#{msg.textNewVotersListName}" 
+                                                    for="target_title"/> 
+                                                <h:inputText 
+                                                    styleClass="form-control form-control-solid voters-list-name-modal" 
+                                                    id="voters-list-name" 
+                                                    value="#{voterBean.voterListName}" 
+                                                    required="true"
+                                                    a:placeholder="#{msg.textCreateVoterListNamePlaceholder}">
+                                                </h:inputText>
+                                                <div class="empty-voters-list-data">
+                                                    #{msg.textNewVotersListNameEmpty}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="d-flex flex-column mb-3">                                           
+                                                <h:outputLabel 
+                                                    styleClass="mb-2 required" 
+                                                    value="#{msg.textVotersEmailIds}"/>
+                                                <h:inputTextarea 
+                                                    styleClass="form-control form-control-solid voters-email-ids-modal" 
+                                                    required="true"
+                                                    id="voters-email-ids"
+                                                    value="#{voterBean.voterEmails}"
+                                                    rows="4" 
+                                                    cols="50" 
+                                                    a:placeholder="#{msg.textCreateVoterListEmailIdPlaceholder}">
+                                                </h:inputTextarea>
+                                                <div class="empty-voters-list-data">
+                                                    #{msg.textVotersEmailIdsEmpty}
+                                                </div>
+                                                <div class="invalid-voters-list-emailIds">
+                                                    #{msg.textVotersEmailIdsInvalid}
+                                                </div>
+                                            </h:panelGroup>
+                                            <h:panelGroup layout="block" styleClass="text-center">
+                                                <h:commandButton 
+                                                    styleClass="btn btn-light me-3" 
+                                                    value="#{msg.cancel}" 
+                                                    type="button"
+                                                    onclick="closeCreateVoterListModal()"><f:passThroughAttribute name="data-bs-dismiss" value="modal"/>
+                                                </h:commandButton>
+                                                <h:commandButton 
+                                                    styleClass="btn btn-primary" 
+                                                    value="#{msg.submit}"
+                                                    id="create_voterList_modal_submit" 
+                                                    action="#{voterBean.createVoterList()}" />
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </h:panelGroup>                            
+                        </h:form>
+                    </h:panelGroup>
+                   <!-- modal Create Participants List -->
+                   <!-- Display Participants List ...beginning-->
+                    <h:form>
+                        <c:if test="#{voterBean.getAllVoterLists().size() == 0}">
+                            <h5>#{msg.textNoVoterListFound}</h5>
+                        </c:if>
+                        <c:if test="#{voterBean.getAllVoterLists().size() > 0}">
+                            <ui:repeat value="#{voterBean.getAllVoterLists()}" var="voterList" varStatus="varStatus">
+                                    <div id="accordion_#{varStatus.index}">
+                                        <div class="card shadow">
+                                            <div class="card-header list-group-item-action" id="headingOne">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <h5>
+                                                            <a 
+                                                                class="btn" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#collapseOne_#{varStatus.index}" 
+                                                                aria-expanded="true" 
+                                                                aria-controls="collapseOne_#{varStatus.index}">
+                                                                <strong>#{voterList.voterListName}</strong>
+                                                            </a>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="col-6 float-end">
+                                                        <div class="voter-list-actions float-end">
+                                                            <button 
+                                                                type="button" 
+                                                                class="btn-add-voterlist btn btn-sm btn-primary btn-borderless text-light add-new-voter"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#create_voterList_modal"
+                                                                onclick="addNewVoter('#{voterList.voterListName}')">
+                                                                #{msg.textAddVoterButton}
+                                                            </button>
+                                                            <h:commandButton 
+                                                                styleClass="btn btn-sm btn-danger btn-borderless text-light" 
+                                                                value="#{msg.textDeleteVoterListButton}"
+                                                                id="delete_voter_list" 
+                                                                action="#{voterBean.deleteVoterList(voterList.voterListName)}">
+                                                            </h:commandButton>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div 
+                                                id="collapseOne_#{varStatus.index}" 
+                                                class="collapse" 
+                                                aria-labelledby="headingOne" 
+                                                data-bs-parent="#accordion_#{varStatus.index}">
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <h:dataTable 
+                                                            value="#{voterList.voterEmails}" 
+                                                            var="email" 
+                                                            class="table table-hover table-striped table-borderless table-light">
+                                                                <h:column>
+                                                                    <f:facet name="header">#{msg.textIndexTitle}</f:facet>
+                                                                    #{voterList.voterEmails.indexOf(email)+1}
+                                                                </h:column>
+
+                                                                <h:column>
+                                                                    <f:facet name="header">#{msg.textVoterListVoterEmailId}</f:facet>
+                                                                    #{email}
+                                                                </h:column>
+                                                                <h:column>
+                                                                    <f:facet name="header">#{msg.labelActions}</f:facet>
+                                                                    <h:commandButton title="#{msg.delete}" value="#{msg.delete}" 
+                                                                                     class="btn btn-light btn-outline-secondary btn-sm borderless" 
+                                                                                     action='#{voterBean.deleteVoterFromList(voterList.voterListName, email)}'>
+                                                                   </h:commandButton>
+                                                               </h:column>
+                                                        </h:dataTable>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                     </div>
+                                <br/>
+                            </ui:repeat>
+                        </c:if>
+                    </h:form>
+                   <!-- Display Participants List ...end-->
+                </main>
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                toastr.options = {
+                closeButton: true,
+                positionClass: "toast-top-right"
+                };                
+               
+                if ($('#toastMessage').val()) {
+                    toastr.error($('#toastMessage').val());
+                }
+            });
+            
+            $('#create_voterList_modal').on('hidden.bs.modal',function (){
+                $(this).removeData();
+            });
+            function createVoterList() {
+                $("#create-voter-list-title-modal").show();
+                $("#add-voter-title-modal").hide();
+            }
+            function addNewVoter(voterListName) {
+                $("#voter-list-operation").val('update');
+                $(".voters-list-name-modal").val(voterListName);
+                $(".voters-list-name-modal").attr('readonly', true);
+                $("#add-voter-title-modal").show();
+                $("#create-voter-list-title-modal").hide();
+            }
+            
+            function closeCreateVoterListModal() {
+                $("#create_voterList_modal_form input[type=text],#create_voterList_modal_form textarea")
+                    .each(function () {
+                        $(this).val('');
+                        $(this).removeAttr("style", "border-color:red;");
+                        $(this).next('.empty-voters-list-data').hide();
+                        $(".error-voters-list-emailIds").hide();
+                    }
+                );
+            }
+        </script>
+    </ui:define>  
+</ui:composition>

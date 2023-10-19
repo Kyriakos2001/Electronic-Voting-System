@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    template="/WEB-INF/templates/page-layout.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:svg = "http://www.w3.org/2000/svg"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+    <ui:define name="exception">
+        <input type="hidden" id="toastMessage"  value='#{pollManagementBean.getPageException()}'></input>
+    </ui:define>
+
+    
+    <ui:define name="header">
+            <ui:include src="/pages/shared/header.xhtml" />   
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="container-fluid">
+            <main class="col-md-9 col-sm-12 ms-md-auto col-lg-10 px-md-4"> 
+                <div class="row">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">#{msg.titleVoting}</h1>
+                    </div>
+                    <div>
+                        <h:form>
+                            <h:inputText 
+                                class="form-control mb-3 input-sm"
+                                id="token"
+                                autocomplete="off"
+                                required="true"
+                                a:placeholder="token"
+                                value="#{votingBean.token}"
+                                requiredMessage="${msg.tokenPleasEnter}" />
+                            <h:commandButton 
+                                class="form-control btn btn-primary" 
+                                value="Validate token" 
+                                action="#{votingBean.getQuestions()}"/>
+                            <h:message for="token" errorStyle="color:red; display:block"/>
+                        </h:form>
+                    </div>
+                    
+                    <div>
+                        <h:form>
+                            <h:panelGroup rendered="#{votingBean.getState() == 'PREPARED'}">
+                                <p>Prepared State (Blue)</p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{votingBean.getState() == 'STARTED'}">
+                                <p>Started State (Yellow)</p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{votingBean.getState() == 'VOTING'}">
+                                <p>Voting State (Green)</p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{votingBean.getState() == 'FINISHED'}">
+                                <p>Finished State (Red)</p>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{votingBean.getState() == 'INVALID'}">
+                                <p>Invalid State (Red)</p>
+                            </h:panelGroup>
+                        </h:form>
+                    </div>
+                    <h:form> 
+                    <!--rendered="#{votingBean.pollInfo != null}"-->
+                    <div class="row votepage-questions">
+                        <ui:repeat value="#{votingBean.pollInfo.questions}" var="question" varStatus="questionStatus">
+                            <div class="votepage-question col-lg-6 mt-4">
+                                <div class="title">
+                                    ##{questionStatus.index + 1}
+                                    #{question.title}
+                                    <h:panelGroup rendered="#{question.maxAnswers==1}">
+                                        <small>(Please choose one answer)</small>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{question.maxAnswers>1}">
+                                        <small>(You can select up to #{question.maxAnswers} answers)</small>
+                                    </h:panelGroup>
+                                </div> 
+                                <ul class="vote-list m-t small-list">
+                                    <h:selectManyCheckbox value = "#{question.selectedAnswer}"> 
+                                        <f:selectItems value="#{question.itemsList}" var="item" itemLabel="#{item.name}" itemValue="#{item.id}" itemDescription="#{item.description}" /> 
+                                    </h:selectManyCheckbox>
+                                </ul>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                    <div class="row votepage-header mt-4">
+                        <a href="cancelvoting.xhtml" class="btn btn-secondary offset-md-6 offset-lg-8 col-lg-2 col-md-3">Cancel</a>
+                        <h:commandButton value="Submit" class="btn btn-primary col-lg-2 col-md-3" action="#{votingBean.submitVote()}"/>
+                    </div>
+                </h:form>
+                    
+                </div>
+            </main>
+        </div>
+    </ui:define>  
+    
+    <ui:define name="scripts"> 
+        <script type="text/javascript">
+            
+            $(document).ready(function() {
+                toastr.options = {
+                closeButton: true,
+                positionClass: "toast-top-right"
+                };                
+               
+                if ($('#toastMessage').val()) {
+                    toastr.error($('#toastMessage').val());
+                }
+            });
+    
+            function closeModal(modalId) {
+                // Assuming you are using Bootstrap modal, you can use the modal selector to hide the modal
+                $('#' + modalId).modal('hide');
+            }
+
+        </script>
+    </ui:define>
+    
+</ui:composition>
