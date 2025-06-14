@@ -1,1 +1,1 @@
-# javaee2023-kilo
+# Java EE Web Applications
